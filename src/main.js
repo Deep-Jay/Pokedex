@@ -1,9 +1,8 @@
-import { api } from "./utils/api.js";
+import { api,BASE_URL } from "./utils/api.js";
 
 const grid = document.getElementById("grid");
 const searchInput = document.getElementById("search");
 const dialog = document.getElementById("pokedetails");
-const BASE_URL = "https://pokeapi.co/api/v2";
 const closeBtn = document.getElementById("closeButton");
 dialog.addEventListener("click", (e) => {
   const dialogDimensions = dialog.getBoundingClientRect();
@@ -29,7 +28,8 @@ async function loadPokemon() {
     // fetch details for each to get the image
     allPokemon = await Promise.all(
       data.results.map(async ({ name, url }) => {
-        const detail = await api.get(url.replace(BASE_URL, ""));
+        const path = new URL(url).pathname.replace("/api/v2", "");
+        const detail = await api.get(path);
         return {
           name,
           id: detail.id,
@@ -59,6 +59,7 @@ function renderGrid(pokemon) {
     `,
     )
     .join("");
+}
   grid.addEventListener("click", async (e) => {
     const link = e.target.closest(".fetch-pokemon");
     if (!link) return;
@@ -98,7 +99,7 @@ function renderGrid(pokemon) {
       dialog.classList.remove("loading");
     }
   });
-}
+
 
 function renderDialogContent(content) {
   document.getElementById("dialog-content").innerHTML = content;
